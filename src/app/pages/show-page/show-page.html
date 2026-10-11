@@ -1,0 +1,162 @@
+@if (!show() && loadError()) {
+<div class="alert alert-danger" role="alert">{{ loadError() }}</div>
+<a routerLink="/" class="btn btn-outline-secondary btn-sm">Back to shows</a>
+}
+
+@if (!show() && !loadError()) {
+<div class="text-center text-secondary py-5">
+  <div class="spinner-border mb-3"></div>
+  <p class="mb-0">Loading show… the server may be waking up, which can take a minute.</p>
+</div>
+}
+
+@if (show(); as s) {
+<div class="mb-3">
+  <a routerLink="/" class="small text-decoration-none">← All shows</a>
+  <div class="d-flex flex-wrap align-items-baseline gap-2 mt-1">
+    <h1 class="h3 fw-bold mb-0">{{ s.name }}</h1>
+    <span class="badge text-bg-light border">Show #{{ s.id }}</span>
+    <span class="text-secondary small">{{ rupees(s.price_paise) }} per seat</span>
+  </div>
+</div>
+
+@if (loadError()) {
+<div class="alert alert-warning py-2 small">
+  Connection problem, showing the last known state. {{ loadError() }}
+</div>
+}
+
+<!-- numbers -->
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="stat-label">Available</div>
+      <div class="stat-value text-success">{{ s.available }}</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="stat-label">Held</div>
+      <div class="stat-value text-warning">{{ s.held }}</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="stat-label">Confirmed</div>
+      <div class="stat-value">{{ s.confirmed }}</div>
+    </div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card"><div class="card-body">
+      <div class="stat-label">Total seats</div>
+      <div class="stat-value">{{ s.total_seats }}</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="progress mb-4" style="height: 8px" role="progressbar" aria-label="Seats taken">
+  <div class="progress-bar" [style.width.%]="pct(s.confirmed, s.total_seats)"></div>
+  <div class="progress-bar bg-warning" [style.width.%]="pct(s.held, s.total_seats)"></div>
+</div>
+
+<div class="row g-4">
+  <!-- seat map -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body p-4">
+        <div class="screen"></div>
+        <div class="screen-label">STAGE / SCREEN</div>
+
+        <div class="seat-map">
+          @for (row of rows(); track row.label) {
+          <div class="seat-row">
+            <span class="row-label">{{ row.label }}</span>
+            <div class="seats">
+              @for (seat of row.seats; track seat.seat_no) {
+              <button
+                type="button"
+                [class]="seatClass(seat.seat_no, seat.status)"
+                [disabled]="seat.status !== 'available'"
+                [attr.title]="seat.seat_no + ' (' + seat.status + ')'"
+                [attr.aria-label]="'Seat ' + seat.seat_no + ', ' + seat.status"
+                (click)="toggle(seat.seat_no, seat.status)"
+              >
+                {{ seatText(seat.seat_no, row.label) }}
+              </button>
+              }
+            </div>
+          </div>
+          }
+        </div>
+
+        <div class="legend">
+          <span><i class="dot available"></i>Available</span>
+          <span><i class="dot selected"></i>Selected</span>
+          <span><i class="dot confirmed"></i>Taken</span>
+          <span><i class="dot held"></i>Held</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- selection summary -->
+  <div class="col-lg-4">
+    <div class="card summary">
+      <div class="card-body p-4">
+        <h2 class="h5 fw-semibold mb-3">Your selection</h2>
+        <div class="small text-secondary mb-3">
+          Booking as <span class="badge text-bg-light border">{{ session.userToken() }}</span>
+        </div>
+
+        @if (selected().length) {
+        <div class="mb-3">
+          @for (seat of selected(); track seat) {
+          <span class="badge rounded-pill text-bg-primary me-1 mb-1">{{ seat }}</span>
+          }
+        </div>
+        } @else {
+        <p class="text-secondary">Pick seats from the map.</p>
+        }
+
+        <hr />
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-secondary">{{ selected().length }} × {{ rupees(s.price_paise) }}</span>
+          <strong class="fs-5">{{ rupees(total()) }}</strong>
+        </div>
+        <p class="small text-secondary mt-2 mb-3">
+          Limit: {{ s.per_user_limit }} seats per user for this show.
+        </p>
+
+        @if (selected().length > s.per_user_limit) {
+        <div class="alert alert-warning py-2 small">
+          That is more than the limit, so the server will decline it.
+        </div>
+        }
+
+        <button
+          class="btn btn-primary w-100"
+          [disabled]="busy() || selected().length === 0"
+          (click)="reserve()"
+        >
+          @if (busy()) {
+          <span class="spinner-border spinner-border-sm me-2"></span>Reserving…
+          } @else {
+          Reserve {{ selected().length || '' }} seat{{ selected().length === 1 ? '' : 's' }}
+          }
+        </button>
+
+        @if (message(); as m) {
+        <div
+          class="alert mt-3 mb-0 py-2 small"
+          [class.alert-success]="m.kind === 'ok'"
+          [class.alert-danger]="m.kind === 'err'"
+          role="alert"
+        >
+          {{ m.text }}
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+}
