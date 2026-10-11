@@ -1,0 +1,9 @@
+{
+  "/api": {
+    "target": "https://seat-reservation-3m30.onrender.com/",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api": "" },
+    "logLevel": "debug"
+  }
+}
