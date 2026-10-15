@@ -22,6 +22,16 @@
           />
           <button class="btn btn-primary" (click)="open()">Open</button>
         </div>
+
+        @if (demoShowId) {
+        <a class="btn btn-outline-primary btn-sm mt-3" [routerLink]="['/shows', demoShowId]">
+          Try the demo show
+        </a>
+        }
+        <p class="text-secondary small mt-3 mb-0">
+          Booking a seat does not need the admin token. Open a show, pick seats, and book as the
+          user shown in the top bar.
+        </p>
       </div>
     </div>
   </div>
@@ -32,7 +42,9 @@
         <h2 class="h5 fw-semibold mb-1">
           <i class="bi bi-plus-circle me-2 text-primary"></i>Create a show
         </h2>
-        <p class="text-secondary small"> Admin only. This is the only place the admin token is used. Booking seats does not need it.</p>
+        <p class="text-secondary small">
+          Admin only. This is the only place the admin token is used. Booking seats does not need it.
+        </p>
 
         <div class="row g-3">
           <div class="col-md-6">

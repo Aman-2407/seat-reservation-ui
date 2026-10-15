@@ -1,14 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Api } from '../../core/api';
+import { DEMO_SHOW_ID } from '../../core/config';
 import { Session } from '../../core/session';
 import { errorMessage } from '../../core/util';
-import { DEMO_SHOW_ID } from '../../core/config';
 
 @Component({
   selector: 'app-home',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -17,13 +17,15 @@ export class Home {
   private router = inject(Router);
   protected session = inject(Session);
 
+  // a show that already exists on the live service, so visitors can try booking without the admin token
+  demoShowId = DEMO_SHOW_ID;
+
   showId = '';
   name = 'friday-night';
   rows = 5;
   perRow = 10;
   priceRupees = 250;
-// inside the Home class:
-  demoShowId = DEMO_SHOW_ID;
+
   busy = signal(false);
   error = signal('');
 
