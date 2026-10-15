@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Api } from '../../core/api';
 import { Session } from '../../core/session';
 import { errorMessage } from '../../core/util';
+import { DEMO_SHOW_ID } from '../../core/config';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,8 @@ export class Home {
   rows = 5;
   perRow = 10;
   priceRupees = 250;
-
+// inside the Home class:
+  demoShowId = DEMO_SHOW_ID;
   busy = signal(false);
   error = signal('');
 
